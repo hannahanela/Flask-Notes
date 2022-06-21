@@ -1,10 +1,10 @@
 """Flask app for Notes"""
-from flask import Flask, jsonify, request, url_for, render_template, redirect, flash, session
+from flask import Flask, render_template, redirect, flash, session
 
-#from flask_debugtoolbar import DebugToolbarExtension
+# from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, User
-from forms import RegisterForm, LoginForm
+from forms import RegisterForm, LoginForm, CSRFProtectForm
 
 app = Flask(__name__)
 
@@ -39,18 +39,20 @@ def register():
         last_name = form.last_name.data
 
         user = User.register(username=name,
-                    password=pwd,
-                    email=email,
-                    first_name=first_name,
-                    last_name=last_name)
+                             password=pwd,
+                             email=email,
+                             first_name=first_name,
+                             last_name=last_name)
 
         db.session.add(user)
         db.session.commit()
+        session["username"] = user.username
         # on successful login, redirect to secret page
         return redirect("/secret")
 
     else:
         return render_template("register_form.html", form=form)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -66,10 +68,37 @@ def login():
         user = User.authenticate(username, pwd)
 
         if user:
-            session["username"] = user.username  # keep logged in
-            return redirect("/secret")
+            session["username"] = user.username
+            return redirect(f"/users/{user.username}")
 
         else:
             form.username.errors = ["Bad name/password"]
 
     return render_template("login_form.html", form=form)
+
+
+@app.get('/users/<username>')
+def secret_page(username):
+    """ displays text to let user know they are logged in"""
+
+    form = CSRFProtectForm()
+
+    user = User.query.get_or_404(username)
+
+    if "username" not in session:
+
+        flash("You must be logged in to view!")
+        return redirect("/login")
+    else:
+        return render_template('user_page.html', user=user, form=form)
+
+
+@app.post("/logout")
+def logout():
+    """Logs user out and redirects to homepage."""
+    form = CSRFProtectForm()
+    if form.validate_on_submit():
+        # Remove "user_id"  if present, but no errors if it wasn't
+        session.pop("username", None)
+
+    return redirect('/')

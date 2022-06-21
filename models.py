@@ -1,6 +1,5 @@
 """Models for Notes."""
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey
 from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
