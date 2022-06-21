@@ -1,4 +1,4 @@
-"""Models for Flask-Notes."""
+"""Models for Notes."""
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey
 from flask_bcrypt import Bcrypt
@@ -41,11 +41,16 @@ class User(db.Model):
                           nullable=False)
 
     @classmethod
-    def register(cls, username, pwd):
+    def register(cls, username, password, email, first_name, last_name):
         """Register user w/hashed password & return user."""
-        hashed = bcrypt.generate_password_hash(pwd).decode('utf8')
+        hashed = bcrypt.generate_password_hash(password).decode('utf8')
         # return instance of user w/username and hashed pwd
-        return cls(username=username, password=hashed)
+        return cls(
+            username=username,
+            password=hashed,
+            email=email,
+            first_name=first_name,
+            last_name=last_name)
 
     @classmethod
     def authenticate(cls, username, pwd):

@@ -5,7 +5,7 @@ from wtforms.validators import InputRequired, Optional, Email, EqualTo, AnyOf, U
 
 
 class RegisterForm(FlaskForm):
-    """" a form for adding a pet"""
+    """" a form for adding a user"""
 
     username = StringField('Username',
                            validators=[InputRequired()])
@@ -17,3 +17,11 @@ class RegisterForm(FlaskForm):
                              validators=[InputRequired()])
     last_name = StringField('Last Name',
                             validators=[InputRequired()])
+
+class LoginForm(FlaskForm):
+    """" a form for logging in an existing user"""
+
+    username = StringField('Username',
+                           validators=[InputRequired()])
+    password = PasswordField('Password',
+                           validators=[InputRequired()])
