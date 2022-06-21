@@ -16,7 +16,7 @@ def connect_db(app):
 
 class User(db.Model):
     """
-    User class that includes an username, password, email,
+    User class that includes an username, password, email, and
     the user's first name, last name.
     """
 
@@ -43,7 +43,7 @@ class User(db.Model):
     def register(cls, username, password, email, first_name, last_name):
         """Register user w/hashed password & return user."""
         hashed = bcrypt.generate_password_hash(password).decode('utf8')
-        # return instance of user w/username and hashed pwd
+
         return cls(
             username=username,
             password=hashed,
@@ -57,8 +57,9 @@ class User(db.Model):
         Return user if valid; else return False.
         """
         u = cls.query.filter_by(username=username).one_or_none()
+        
         if u and bcrypt.check_password_hash(u.password, pwd):
-            # return user instance
             return u
+
         else:
             return False

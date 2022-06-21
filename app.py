@@ -1,5 +1,5 @@
 """Flask app for Notes"""
-from flask import Flask, render_template, redirect, flash, session
+from flask import Flask, render_template, redirect, session
 
 # from flask_debugtoolbar import DebugToolbarExtension
 
@@ -38,16 +38,17 @@ def register():
         first_name = form.first_name.data
         last_name = form.last_name.data
 
-        user = User.register(username=name,
-                             password=pwd,
-                             email=email,
-                             first_name=first_name,
-                             last_name=last_name)
+        user = User.register(
+            username=name,
+            password=pwd,
+            email=email,
+            first_name=first_name,
+            last_name=last_name)
 
         db.session.add(user)
         db.session.commit()
         session["username"] = user.username
-        # on successful login, redirect to secret page
+
         return redirect("/secret")
 
     else:
@@ -64,7 +65,6 @@ def login():
         username = form.username.data
         pwd = form.password.data
 
-        # authenticate will return a user or False
         user = User.authenticate(username, pwd)
 
         if user:
@@ -81,24 +81,32 @@ def login():
 def secret_page(username):
     """ displays text to let user know they are logged in"""
 
+
+
+    # TODO: only allow current user to access user page
+
+    if "username" not in session:
+
+        return redirect("/login")
+
+    # only render_template of matching username
     form = CSRFProtectForm()
 
     user = User.query.get_or_404(username)
 
-    if "username" not in session:
+    if user.username == session["username"]:
 
-        flash("You must be logged in to view!")
-        return redirect("/login")
-    else:
         return render_template('user_page.html', user=user, form=form)
+    
+    return redirect("/login")
 
 
 @app.post("/logout")
 def logout():
     """Logs user out and redirects to homepage."""
+
     form = CSRFProtectForm()
     if form.validate_on_submit():
-        # Remove "user_id"  if present, but no errors if it wasn't
         session.pop("username", None)
 
     return redirect('/')
