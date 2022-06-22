@@ -17,7 +17,7 @@
     {% endfor %}
 </ul>
 
-<form action="/users/{{ user.username }}/posts/new" method="POST">
+<form action="/users/{{ user.username }}/notes/add" method="POST">
     <button type="submit">Add Note</button>
 </form>
 <form action="/users/{{ user.username }}/delete" method="POST">
