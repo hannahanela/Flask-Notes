@@ -4,7 +4,7 @@ from flask import Flask, render_template, redirect, session
 # from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, User, Note
-from forms import RegisterForm, LoginForm, CSRFProtectForm, AddNoteForm
+from forms import RegisterForm, LoginForm, CSRFProtectForm, AddNoteForm, EditNoteForm
 
 app = Flask(__name__)
 
@@ -131,6 +131,7 @@ def delete_user(username):
 
     return redirect('/')
 
+
 @app.route('/users/<username>/notes/add', methods=["GET", "POST"])
 def add_note(username):
     """Show add note form and create new note, add to database, and return to
@@ -161,3 +162,37 @@ def add_note(username):
     else:
 
         return render_template("add_note_form.html", form=form)
+
+
+@app.get('/notes/<int:id>')
+def posts_show(id):
+    """Show a page with info on a specific post"""
+
+    note = Note.query.get_or_404(id)
+    return render_template('notes-show.html', note=note)
+
+
+@app.route('/notes/<int:id>/update', methods=["GET", "POST"])
+def update_note(id):
+    """Show add note form and create new note, add to database, and return to
+    user page."""
+
+    note = Note.query.get_or_404(id)
+    user = User.query.get(note.user.username)
+
+    form = EditNoteForm()
+
+    if form.validate_on_submit():
+        note.title = form.title.data
+        note.content = form.content.data
+
+        db.session.commit()
+
+        if user:
+            session["username"] = user.username
+
+            return redirect(f"/users/{user.username}")
+
+    else:
+
+        return render_template("add_note_form.html", form=form, note=note)

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}register User{% endblock %}
+{% block title %}update note{% endblock %}
 {% block content %}
 
 <form id="add-user-form" method="POST">
@@ -8,7 +8,7 @@
   if field.widget.input_type != 'hidden' %}
   <p>
   {{ field.label }}
-  {{ field.value() }}
+  {{ field }}
   {% for error in field.errors %}
   {{ error }}
   {% endfor %}
