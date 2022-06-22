@@ -1,5 +1,6 @@
 """Models for Notes."""
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import ForeignKey
 from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
@@ -39,6 +40,8 @@ class User(db.Model):
     last_name = db.Column(db.String(30),
                           nullable=False)
 
+    notes = db.relationship('Note', backref='user')
+
     @classmethod
     def register(cls, username, password, email, first_name, last_name):
         """Register user w/hashed password & return user."""
@@ -57,9 +60,34 @@ class User(db.Model):
         Return user if valid; else return False.
         """
         u = cls.query.filter_by(username=username).one_or_none()
-        
+
         if u and bcrypt.check_password_hash(u.password, pwd):
             return u
 
         else:
             return False
+
+
+class Note(db.Model):
+    """
+    Note class that includes an id, title, content, and
+    note owner.
+    """
+
+    __tablename__ = "notes"
+
+    id = db.Column(db.Integer,
+                   primary_key=True,
+                   nullable=False,
+                   autoincrement=True)
+
+    title = db.Column(db.String(100),
+                      nullable=False)
+
+    content = db.Column(db.Text,
+                        nullable=False)
+
+    owner = db.Column(
+        db.String(30),
+        db.ForeignKey('users.username'),
+        nullable=False)

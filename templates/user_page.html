@@ -5,6 +5,26 @@
 
 {% if 'username' in session %}
 <h1> {{user.username }}</h1>
+
+<h2>notes</h2>
+<ul>
+    {% for note in user.notes %}
+    <li>
+      <a class="btn-primary" href="/note/{{note.id}}/update">EDIT</a>
+      <a class="btn-danger" href="/note/{{note.id}}/delete">DELETE</a>
+      <a href="/notes/{{ note.id }}">{{ note.title }}</a>
+    </li>
+    {% endfor %}
+</ul>
+
+<form action="/users/{{ user.username }}/posts/new" method="POST">
+    <button type="submit">Add Note</button>
+</form>
+<form action="/users/{{ user.username }}/delete" method="POST">
+  <button type="submit">Delete User</button>
+</form>
+
+
 <form action="/logout" method="POST">
   {{form.hidden_tag()}}
   <button type="submit"> logout</button>
